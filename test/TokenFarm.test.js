@@ -1,12 +1,12 @@
-const DaiToken = artifacts.require('DaiToken')
-const DappToken = artifacts.require('DappToken')
-const TokenFarm = artifacts.require('TokenFarm')
+const DaiToken = artifacts.require('DaiToken');
+const DappToken = artifacts.require('DappToken');
+const TokenFarm = artifacts.require('TokenFarm');
 
-const { assert } = require('chai')
+const { assert } = require('chai');
 
 require('chai')
   .use(require('chai-as-promised'))
-  .should()
+  .should();
 
 function tokens(n) {
   return web3.utils.toWei(n, 'ether');
@@ -52,5 +52,42 @@ contract('TokenFarm', ([owner, investor]) => {
   it('Contract has tokens', async () => {
     let balance = await dappToken.balanceOf(tokenFarm.address); 
     assert.equal(balance.toString(), tokens('1000000'));
+  });
+
+  describe('Farming tokens', async () => {
+    it('rewards investors for staking mDai tokens', async () => {
+      let result;
+      
+      // Check investor balance before staking
+      result = await daiToken.balanceOf(investor);
+      console.log('Investor balance before staking:', result.toString());
+      assert.equal(result.toString(), tokens('100'), 'Investor Mock DAI wallet balance correct before staking');
+
+      // Approve tokens for staking
+      await daiToken.approve(tokenFarm.address, tokens('100'), { from: investor });
+
+      // Check allowance
+      result = await daiToken.allowance(investor, tokenFarm.address);
+      console.log('Allowance:', result.toString());
+      assert.equal(result.toString(), tokens('100'), 'Allowance should be 100 mDAI');
+
+      // Stake Mock DAI Tokens
+      await tokenFarm.stakeTokens(tokens('100'), { from: investor });
+
+      // Check staking result
+      result = await daiToken.balanceOf(investor);
+      console.log('Investor balance after staking:', result.toString());
+      assert.equal(result.toString(), tokens('0'), 'Investor Mock DAI wallet balance correct after staking');
+
+      result = await daiToken.balanceOf(tokenFarm.address);
+      console.log('Token Farm balance after staking:', result.toString());
+      assert.equal(result.toString(), tokens('100'), 'Token Farm Mock DAI balance correct after staking');
+
+   result = await tokenFarm.stakingBalance(investor)
+   assert.equal(result.toString(), tokens('100'), 'investor staking balance correct after staking')
+
+   
+
+    });
   });
 });

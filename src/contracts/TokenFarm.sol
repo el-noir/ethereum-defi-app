@@ -21,7 +21,7 @@ constructor(DappToken _dappToken, DaiToken _daiToken) public {
 
     // 1) Stake Tokens (Deposit)
 
-       funtion stakeTokens(uint _amount) public {
+       function stakeTokens(uint _amount) public {
              // Transfer Moch Dai tokens to this contract for staking
              daiToken.transferFrom(msg.sender, address(this), _amount);
              
