@@ -43,7 +43,7 @@ constructor(DappToken _dappToken, DaiToken _daiToken) public {
        }
 
         // 3) Issuing Tokens 
-        function issueToken() public {
+        function issueTokens() public {
          require(msg.sender==owner, "caller must be the owner");         for (uint i=0; i<stakers.length; i++){
             address recipient = stakers[i];
             uint balance = stakingBalance[recipient];
@@ -58,7 +58,7 @@ constructor(DappToken _dappToken, DaiToken _daiToken) public {
         }
 
     // 2) Unstacking Tokens (Withdraw)
-          
+      
 
    
            
