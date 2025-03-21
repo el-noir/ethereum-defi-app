@@ -58,7 +58,19 @@ constructor(DappToken _dappToken, DaiToken _daiToken) public {
         }
 
     // 2) Unstacking Tokens (Withdraw)
-      
+      function unstakeTokens() public {
+         // fetch staking balance
+         uint balance = stakingBalance[msg.sender];
+
+         require(balance>0, "staking balance cannot be 0");
+         
+         daiToken.transfer(msg.sender, balance);
+         
+         // reset staking balance
+         stakingBalance[msg.sender] = 0;
+          
+          isStaking[msg.sender] = false;
+      }
 
    
            
