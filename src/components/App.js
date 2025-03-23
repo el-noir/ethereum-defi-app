@@ -5,6 +5,7 @@ import Web3 from 'web3'
 import DaiToken from '../abis/DaiToken.json'
 import DappToken from '../abis/DappToken.json'
 import TokenFarm from '../abis/TokenFarm.json'
+import Main from './Main'
 class App extends Component {
 
   async componentWillMount(){
@@ -13,49 +14,49 @@ class App extends Component {
   }
 
   async loadBlockchainData() {
-    const web3 = window.web3
-
-    const accounts = await web3.eth.getAccounts();
-    console.log(accounts);
-    this.setState({account: accounts[0]})
-
-    const networkId = await web3.eth.net.getId()
-    console.log(networkId); 
-
-    // load DaiToken
-    const daiTokenData = DaiToken.networks[networkId]
-    if(daiTokenData){
-      const daiToken = new web3.eth.Contract(DaiToken.abi, daiTokenData.address)
-      this.setState({daiToken})
-      let daiTokenBalance = await daiToken.methods.balanceOf(this.state.account).call()
-      this.setState({daiTokenBalance: daiTokenBalance.toString()})
-      console.log({balance: daiTokenBalance})
-    } else {
-      window.alert('DaiToken contract not deployed to detected network.')
-    }
-    
-  const dappTokenData = DappToken.networks[networkId]
-  if(dappTokenData){
-    const dappToken = new web3.eth.Contract(DappToken.abi, dappTokenData.address)
-    this.setState({dappToken})
-    let dappTokenBalance = await dappToken.methods.balanceOf(this.state.account).call()
-    this.setState({dappTokenBalance: dappTokenBalance.toString()})
-  } else {
-    window.alert('DappToken contract not deployed to detected network.')
-  }
+    const web3 = window.web3;
   
-  const tokenFarmData = TokenFarm.networks[networkId]
-  if(tokenFarmData){
-    const tokenFarm = new web3.eth.Contract(TokenFarm.abi, tokenFarmData.address)
-    this.setState({tokenFarm})
-    let tokenFarmBalance = await tokenFarm.methods.stakingBalance(this.state.account).call()
-    this.setState({stakingBalance: tokenFarmBalance.toString()})
-  } else {
-    window.alert('TokenFarm contract not deployed to detected network.')
-  }
-  }
-
-
+    const accounts = await web3.eth.getAccounts();
+    this.setState({ account: accounts[0] });
+  
+    const networkId = await web3.eth.net.getId();
+  
+    // Load DaiToken
+    const daiTokenData = DaiToken.networks[networkId];
+    if (daiTokenData) {
+      const daiToken = new web3.eth.Contract(DaiToken.abi, daiTokenData.address);
+      this.setState({ daiToken });
+      let daiTokenBalance = await daiToken.methods.balanceOf(this.state.account).call();
+      this.setState({ daiTokenBalance: daiTokenBalance.toString() }); // Convert to string
+    } else {
+      window.alert('DaiToken contract not deployed to detected network.');
+    }
+  
+    // Load DappToken
+    const dappTokenData = DappToken.networks[networkId];
+    if (dappTokenData) {
+      const dappToken = new web3.eth.Contract(DappToken.abi, dappTokenData.address);
+      this.setState({ dappToken });
+      let dappTokenBalance = await dappToken.methods.balanceOf(this.state.account).call();
+      this.setState({ dappTokenBalance: dappTokenBalance.toString() }); // Convert to string
+    } else {
+      window.alert('DappToken contract not deployed to detected network.');
+    }
+  
+    // Load TokenFarm
+    const tokenFarmData = TokenFarm.networks[networkId];
+    if (tokenFarmData) {
+      const tokenFarm = new web3.eth.Contract(TokenFarm.abi, tokenFarmData.address);
+      this.setState({ tokenFarm });
+      let stakingBalance = await tokenFarm.methods.stakingBalance(this.state.account).call();
+      this.setState({ stakingBalance: stakingBalance.toString() }); // Convert to string
+    } else {
+      window.alert('TokenFarm contract not deployed to detected network.');
+    }
+  
+    this.setState({ loading: false });
+  } 
+  
   async loadWeb3(){
     if(window.ethereum){
       window.web3= new Web3(window.ethereum)
@@ -69,32 +70,36 @@ class App extends Component {
   }
 
   constructor(props) {
-    super(props) 
+    super(props);
     this.state = {
-      account: '0x0'
-    }
+      account: '0x0',
+      daiToken: {},
+      dappToken: {},
+      tokenFarm: {},
+      daiTokenBalance: '0', // Initialize as string
+      dappTokenBalance: '0', // Initialize as string
+      stakingBalance: '0', // Initialize as string
+      loading: true,
+    };
   }
-  rendor(){
+  render() {
     return (
       <div>
-        <Navbar account= {this.state.account} />
-        <div className='container-fluid mt-5'>
-          <div className='row'>
-            <main role="main" className='col-lg-12 ml-auto' style={{maxWidth: '600px'}}>
-              <div className='content mr-auto ml-auto'>
-              <a href='http://www.dapuniversity.com/bootcamp'
-              target='_blank'
-              rel='noopener noreferrer'>
-  
-              </a>
-              <h1>Hello, World</h1>
+        <Navbar account={this.state.account} />
+        <div className="container-fluid mt-5">
+          <div className="row">
+            <main role="main" className="col-lg-12 ml-auto" style={{ maxWidth: '600px' }}>
+              <div className="content mr-auto ml-auto">
+                <Main
+                  stakingBalance={this.state.stakingBalance}
+                  dappTokenBalance={this.state.dappTokenBalance}
+                />
               </div>
-               </main>
+            </main>
           </div>
         </div>
       </div>
-    )
+    );
   }
 }
-
-export default App
+export default App;
